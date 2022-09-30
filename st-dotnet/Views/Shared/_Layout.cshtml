@@ -11,9 +11,14 @@
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.12.1/js/jquery.dataTables.js"></script>
+
+
+    <script type="text/javascript" src="~/architect-ui/assets/scripts/main.js"></script>
+    <link href="~/architect-ui/main.css" rel="stylesheet">
 </head>
+
 <body>
-    <header>
+    <div id="app">
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
             <div class="container-fluid">
                 <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">st_dotnet</a>
@@ -33,21 +38,24 @@
                 </div>
             </div>
         </nav>
-    </header>
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
+        <!--
+        <partial name="_NavBar" />
+        -->
+
+        <main class="py-4">
+            <div class="flex-container">
+                <partial name="_SideBar" />
+
+                <div class="content-container">
+                    @RenderBody()
+                </div>
+            </div>
+
         </main>
     </div>
 
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2022 - st_dotnet - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-        </div>
-    </footer>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
-

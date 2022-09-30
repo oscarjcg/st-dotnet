@@ -17,3 +17,16 @@ body {
   margin-bottom: 60px;
 }
 
+
+.flex-container {
+    display: flex;
+}
+
+.sidebar-container {
+    width: 20%;
+}
+
+.content-container {
+    width: 80%;
+    margin: auto;
+}
