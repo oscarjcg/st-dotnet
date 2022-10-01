@@ -7,6 +7,8 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
+builder.Services.AddScoped<IChannelRepository, ChannelRepository>();
+
 builder.Services.AddDbContextPool<GalleryDbContext>(options =>
 {
     if (builder.Environment.IsDevelopment())
@@ -15,6 +17,7 @@ builder.Services.AddDbContextPool<GalleryDbContext>(options =>
         options.UseSqlServer(builder.Configuration.GetConnectionString("GalleryDb"));
 });
 builder.Services.AddScoped<ICategoryData, GalleryDbContext.SqlCategoryData>();
+builder.Services.AddScoped<IChannelData, GalleryDbContext.SqlChannelData>();
 
 
 var app = builder.Build();

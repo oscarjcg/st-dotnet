@@ -1,0 +1,40 @@
+@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+
+@model ChannelViewModel
+
+<div class="table-responsive">
+    <table id="channels-table" class="mb-0 table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Name</th>
+                <th>Image</th>
+                <th>Created</th>
+                <th>Updated</th>
+
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var channel in Model.Channels)
+            {
+                <tr>
+                    <th scope="row">@channel.Id</th>
+                    <td>@channel.Name</td>
+                    <td>@channel.Image</td>
+                    <td>@channel.Id</td>
+                    <td>@channel.Id</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<script>$(document).ready(function() {
+        $('#channels-table').DataTable({
+            "paging": true
+        } );
+    } );</script>
