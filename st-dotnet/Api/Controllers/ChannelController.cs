@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Amazon.S3;
+using Amazon.S3.Model;
 using Microsoft.AspNetCore.Mvc;
 using st_dotnet.Models;
 
@@ -13,10 +15,15 @@ namespace st_dotnet.Api.Controllers
     public class ChannelController : Controller
     {
         private readonly IChannelRepository channelRepository;
+        private readonly IAmazonS3 s3Client;
 
-        public ChannelController(IChannelRepository channelRepository)
+        private const string S3_BUTCKET_NAME = "oscar-catari-s3-dev";
+        private const string S3_BUTCKET_FOLDER = "publicdev/channel";
+
+        public ChannelController(IChannelRepository channelRepository, IAmazonS3 s3Client)
         {
             this.channelRepository = channelRepository;
+            this.s3Client = s3Client;
         }
 
         [HttpGet]
@@ -32,9 +39,24 @@ namespace st_dotnet.Api.Controllers
         }
 
         [HttpPost]
-        public void Post(IFormCollection form)
+        public async Task<IActionResult> Post(IFormCollection form)
         {
-            channelRepository.Add(new Channel { Name = form["name"], Image = "i", Preview ="p", Type=1, Content="c" });
+            var bucketExists = await s3Client.DoesS3BucketExistAsync(S3_BUTCKET_NAME);
+            if (!bucketExists) return NotFound($"Bucket {S3_BUTCKET_NAME} does not exist.");
+
+            var imageFile = form.Files.GetFile("image");
+            var previewFile = form.Files.GetFile("preview");
+
+            var imageKey = $"{S3_BUTCKET_FOLDER}/{Guid.NewGuid().ToString()}";
+            var previewKey = $"{S3_BUTCKET_FOLDER}/{Guid.NewGuid().ToString()}";
+
+            if (imageFile == null || previewFile == null) return BadRequest();
+            await UploadFile(imageFile, imageKey);
+            await UploadFile(previewFile, previewKey);
+
+            channelRepository.Add(new Channel { Name = form["name"], Image = imageKey, Preview = previewKey, Type = 1, Content = "c" });
+
+            return Ok();
         }
 
         [HttpPut("{id}")]
@@ -49,6 +71,19 @@ namespace st_dotnet.Api.Controllers
         public Channel Delete(int id)
         {
             return channelRepository.Delete(id);
+        }
+
+        private async Task<PutObjectResponse> UploadFile(IFormFile imageFile, string imageKey)
+        {
+            var request = new PutObjectRequest()
+            {
+                BucketName = S3_BUTCKET_NAME,
+                Key = imageKey,
+                InputStream = imageFile.OpenReadStream(),
+                CannedACL = S3CannedACL.PublicRead
+            };
+            request.Metadata.Add("Content-Type", imageFile.ContentType);
+            return await s3Client.PutObjectAsync(request);
         }
     }
 }
