@@ -11,6 +11,8 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllersWithViews();
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<IChannelRepository, ChannelRepository>();
+builder.Services.AddScoped<ICommentRepository, CommentRepository>();
+
 
 builder.Services.AddDbContextPool<GalleryDbContext>(options =>
 {
@@ -21,6 +23,8 @@ builder.Services.AddDbContextPool<GalleryDbContext>(options =>
 });
 builder.Services.AddScoped<ICategoryData, GalleryDbContext.SqlCategoryData>();
 builder.Services.AddScoped<IChannelData, GalleryDbContext.SqlChannelData>();
+builder.Services.AddScoped<ICommentData, GalleryDbContext.SqlCommentData>();
+
 
 var credentials = builder.Environment.IsDevelopment() ?
     new BasicAWSCredentials(
@@ -60,5 +64,13 @@ app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
+
+if (app.Environment.IsDevelopment())
+{
+    app.MapGet("/debug/routes", (IEnumerable<EndpointDataSource> endpointSources) =>
+        string.Join("\n", endpointSources.SelectMany(source => source.Endpoints)));
+}
+
 app.Run();
+
 

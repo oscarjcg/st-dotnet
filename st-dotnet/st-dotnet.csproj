@@ -21,6 +21,7 @@
     <None Remove="Views\Channel\" />
     <None Remove="AWSSDK.S3" />
     <None Remove="AWSSDK.Extensions.NETCore.Setup" />
+    <None Remove="Views\Comment\" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="ViewModels\" />
@@ -30,6 +31,7 @@
     <Folder Include="Api\Controllers\" />
     <Folder Include="Data\" />
     <Folder Include="Views\Channel\" />
+    <Folder Include="Views\Comment\" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.9" />

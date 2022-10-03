@@ -8,6 +8,8 @@ namespace st_dotnet.Data
     {
         public DbSet<Category> categories { get; set; }
         public DbSet<Channel> channels { get; set; }
+        public DbSet<Comment> comments { get; set; }
+
 
         public GalleryDbContext(DbContextOptions<GalleryDbContext> options): base(options)
         {

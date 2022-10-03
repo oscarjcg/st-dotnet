@@ -1,0 +1,43 @@
+@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+
+@model CommentViewModel
+
+<div class="table-responsive">
+    <table id="comments-table" class="mb-0 table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Channel</th>
+                <th>Author</th>
+                <th>Comment</th>
+                <th>Created</th>
+                <th>Updated</th>
+
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var comment in Model.Comments)
+            {
+                <tr>
+                    <th scope="row">@comment.Id</th>
+                    <td>@comment.ChannelId</td>
+                    <td>@comment.Author</td>
+                    <td>@comment.Text</td>
+                    <td>@comment.Id</td>
+                    <td>@comment.Id</td>
+                </tr>
+            }
+
+        </tbody>
+    </table>
+</div>
+
+<script>$(document).ready(function() {
+        $('#comments-table').DataTable({
+            "paging": true
+        } );
+    } );</script>
