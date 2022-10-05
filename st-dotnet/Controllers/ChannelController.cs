@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using st_dotnet.Models;
 using st_dotnet.ViewModels;
@@ -10,6 +11,7 @@ using st_dotnet.ViewModels;
 
 namespace st_dotnet.Controllers
 {
+    [Authorize]
     public class ChannelController : Controller
     {
         private readonly IChannelRepository channelRepository;

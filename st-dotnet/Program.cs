@@ -4,11 +4,14 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using st_dotnet.Data;
 using st_dotnet.Models;
+using Microsoft.AspNetCore.Identity;
+using st_dotnet.Areas.Identity.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+builder.Services.AddRazorPages();
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<IChannelRepository, ChannelRepository>();
 builder.Services.AddScoped<ICommentRepository, CommentRepository>();
@@ -21,6 +24,9 @@ builder.Services.AddDbContextPool<GalleryDbContext>(options =>
     else
         options.UseSqlServer(builder.Configuration.GetConnectionString("GalleryDb"));
 });
+
+builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = false)
+    .AddEntityFrameworkStores<GalleryDbContext>();
 builder.Services.AddScoped<ICategoryData, GalleryDbContext.SqlCategoryData>();
 builder.Services.AddScoped<IChannelData, GalleryDbContext.SqlChannelData>();
 builder.Services.AddScoped<ICommentData, GalleryDbContext.SqlCommentData>();
@@ -58,11 +64,15 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
+app.UseAuthentication();
 app.UseAuthorization();
+
 
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
+
+app.MapRazorPages();
 
 
 if (app.Environment.IsDevelopment())
@@ -70,6 +80,9 @@ if (app.Environment.IsDevelopment())
     app.MapGet("/debug/routes", (IEnumerable<EndpointDataSource> endpointSources) =>
         string.Join("\n", endpointSources.SelectMany(source => source.Endpoints)));
 }
+
+
+
 
 app.Run();
 
