@@ -31,5 +31,10 @@ namespace st_dotnet.Models
         {
             commentData.DeleteChannelComments(id);
         }
+
+        public IEnumerable<Comment> GetChannelComments(int id)
+        {
+            return commentData.GetChannelComments(id);
+        }
     }
 }

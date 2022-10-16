@@ -46,6 +46,14 @@ namespace st_dotnet.Data
             {
                 return db.comments;
             }
+
+            public IEnumerable<Comment> GetChannelComments(int id)
+            {
+                var query = from r in db.comments
+                            where r.ChannelId == id
+                            select r;
+                return query;
+            }
         }
     }
 }

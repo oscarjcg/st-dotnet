@@ -9,6 +9,7 @@ namespace st_dotnet.Data
         Comment Delete(int id);
         IEnumerable<Comment> GetAll();
         void DeleteChannelComments(int id);
+        IEnumerable<Comment> GetChannelComments(int id);
     }
 }
  

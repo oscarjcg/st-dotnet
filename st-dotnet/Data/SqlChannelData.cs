@@ -41,7 +41,10 @@ namespace st_dotnet.Data
 
             public Channel GetbyName(string name)
             {
-                throw new NotImplementedException();
+                var query = from r in db.channels
+                            where r.Name == name
+                            select r;
+                return query.First();
             }
 
             public Channel Update(Channel updatedChannel)

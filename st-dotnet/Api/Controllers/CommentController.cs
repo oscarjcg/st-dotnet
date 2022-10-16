@@ -15,10 +15,12 @@ namespace st_dotnet.Api.Controllers
     public class CommentController : Controller
     {
         private readonly ICommentRepository commentRepository;
+        private readonly IChannelRepository channelRepository;
 
-        public CommentController(ICommentRepository commentRepository)
+        public CommentController(ICommentRepository commentRepository, IChannelRepository channelRepository)
         {
             this.commentRepository = commentRepository;
+            this.channelRepository = channelRepository;
         }
 
         [HttpGet]
@@ -41,11 +43,23 @@ namespace st_dotnet.Api.Controllers
             return commentRepository.Delete(id);
         }
 
-        // TODO Not working
-        [HttpDelete("{id}")]
+        [HttpDelete("ChannelComments/{id}")]
         public void DeleteChannelComments(int id)
         {
             commentRepository.DeleteChannelComments(id);
+        }
+
+        [HttpGet("ChannelComments/{id}")]
+        public IEnumerable<Comment> GetChannelComments(int id)
+        {
+            return commentRepository.GetChannelComments(id);
+        }
+
+        [HttpGet("ChannelCommentsByName/{name}")]
+        public IEnumerable<Comment> GetChannelCommentsByName(string name)
+        {
+            var channel = channelRepository.GetbyName(name);
+            return commentRepository.GetChannelComments(channel.Id);
         }
 
     }
