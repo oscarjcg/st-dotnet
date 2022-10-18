@@ -44,11 +44,21 @@ namespace st_dotnet.Models
             return categoryData.GetbyName(name);
         }
 
+        public IEnumerable<Channel> GetChannels(int id)
+        {
+            return categoryData.GetbyId(id).Channels;
+        }
+
         public Category Update(Category updatedCategory)
         {
             categoryData.Update(updatedCategory);
             categoryData.Commit();
             return updatedCategory;
+        }
+
+        Category ICategoryRepository.GetChannels(int id)
+        {
+            return categoryData.GetbyId(id);
         }
     }
 }

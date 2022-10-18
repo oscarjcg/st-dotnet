@@ -15,14 +15,16 @@ namespace st_dotnet.Api.Controllers
     public class CategoryController : Controller
     {
         private readonly ICategoryRepository _categoryRepository;
+        private readonly IChannelRepository _channelRepository;
         private readonly IAmazonS3 s3Client;
 
         private const string S3_BUTCKET_NAME = "oscar-catari-s3-dev";
         private const string S3_BUTCKET_FOLDER = "publicdev/category";
 
-        public CategoryController(ICategoryRepository categoryRepository, IAmazonS3 s3Client)
+        public CategoryController(ICategoryRepository categoryRepository, IChannelRepository channelRepository, IAmazonS3 s3Client)
         {
             _categoryRepository = categoryRepository;
+            _channelRepository = channelRepository;
             this.s3Client = s3Client;
         }
 
@@ -87,6 +89,21 @@ namespace st_dotnet.Api.Controllers
             request.Metadata.Add("Content-Type", imageFile.ContentType);
             return await s3Client.PutObjectAsync(request);
         }
+
+        [HttpGet("byname/{name}")]
+        public Category GetCategoryByName(string name)
+        {
+            return _categoryRepository.GetbyName(name);
+        }
+
+        
+        [HttpGet("byname/{name}/channels")]
+        public IEnumerable<Channel> GetChannelsByName(string name)
+        {
+            var category = _categoryRepository.GetbyName(name);
+            return _categoryRepository.GetChannels(category.Id).Channels;
+        }
+        
     }
 }
 

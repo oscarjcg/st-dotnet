@@ -10,6 +10,7 @@ namespace st_dotnet.Models
         IEnumerable<Category> GetAll();
         Category GetbyId(int id);
         Category GetbyName(string name);
+        Category GetChannels(int id);
     }
 }
 

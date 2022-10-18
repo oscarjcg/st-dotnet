@@ -1,4 +1,5 @@
 using System;
+using Microsoft.EntityFrameworkCore;
 using st_dotnet.Models;
 
 namespace st_dotnet.Data
@@ -42,7 +43,9 @@ namespace st_dotnet.Data
 
             public Category GetbyId(int id)
             {
-                return db.categories.Find(id);
+                return db.categories.Where(c => c.Id == id)
+                        .Include(c => c.Channels)
+                        .First();
             }
 
             public Category GetbyName(string name)
@@ -51,7 +54,7 @@ namespace st_dotnet.Data
                             where c.Name.StartsWith(name) || string.IsNullOrEmpty(name)
                             orderby c.Name
                             select c;
-                return (Category)query;
+                return query.First();
             }
 
             public Category Update(Category updatedCategory)

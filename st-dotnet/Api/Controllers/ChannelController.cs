@@ -15,14 +15,16 @@ namespace st_dotnet.Api.Controllers
     public class ChannelController : Controller
     {
         private readonly IChannelRepository channelRepository;
+        private readonly ICategoryRepository categoryRepository;
         private readonly IAmazonS3 s3Client;
 
         private const string S3_BUTCKET_NAME = "oscar-catari-s3-dev";
         private const string S3_BUTCKET_FOLDER = "publicdev/channel";
 
-        public ChannelController(IChannelRepository channelRepository, IAmazonS3 s3Client)
+        public ChannelController(IChannelRepository channelRepository, ICategoryRepository categoryRepository, IAmazonS3 s3Client)
         {
             this.channelRepository = channelRepository;
+            this.categoryRepository = categoryRepository;
             this.s3Client = s3Client;
         }
 
@@ -53,18 +55,31 @@ namespace st_dotnet.Api.Controllers
             if (imageFile == null || previewFile == null) return BadRequest();
             await UploadFile(imageFile, imageKey);
             await UploadFile(previewFile, previewKey);
-
+            // TODO Channel Content Type
             channelRepository.Add(new Channel { Name = form["name"], Image = imageKey, Preview = previewKey, Type = 1, Content = "c" });
 
             return Ok();
         }
 
         [HttpPut("{id}")]
-        public void Put(int id, IFormCollection form)
+        public async Task<IActionResult> Put(int id, IFormCollection form)
         {
-            var channel = new Channel { Id = id, Name = form["name"], Image = "s", Preview = "p", Type = 1, Content = "c" };
+            var bucketExists = await s3Client.DoesS3BucketExistAsync(S3_BUTCKET_NAME);
+            if (!bucketExists) return NotFound($"Bucket {S3_BUTCKET_NAME} does not exist.");
+
+            var imageFile = form.Files.GetFile("image");
+            var previewFile = form.Files.GetFile("preview");
+
+            var imageKey = $"{S3_BUTCKET_FOLDER}/{Guid.NewGuid().ToString()}";
+            var previewKey = $"{S3_BUTCKET_FOLDER}/{Guid.NewGuid().ToString()}";
+
+            if (imageFile == null || previewFile == null) return BadRequest();
+            await UploadFile(imageFile, imageKey);
+            await UploadFile(previewFile, previewKey);
+            // TODO Channel Content Type
+            var channel = new Channel { Id = id, Name = form["name"], Image = imageKey, Preview = previewKey, Type = 1, Content = "c" };
             channelRepository.Update(channel);
-            Ok();
+            return Ok(channel);
         }
 
         [HttpDelete("{id}")]
@@ -84,6 +99,24 @@ namespace st_dotnet.Api.Controllers
             };
             request.Metadata.Add("Content-Type", imageFile.ContentType);
             return await s3Client.PutObjectAsync(request);
+        }
+
+        [HttpGet("byname/{name}")]
+        public Channel GetChannelByName(string name)
+        {
+            return channelRepository.GetbyName(name);
+        }
+
+        [HttpPut("{id}/addcategory/{category_id}")]
+        public async Task<IActionResult> AddCategory(int id, int category_id)
+        {
+            var channel = channelRepository.GetbyId(id);
+            var category = categoryRepository.GetbyId(category_id);
+            if (channel.Categories == null)
+                channel.Categories = new List<Category>();
+            channel.Categories.Add(category);
+            channelRepository.Update(channel);
+            return Ok(channel);
         }
     }
 }

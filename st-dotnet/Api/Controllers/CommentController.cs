@@ -55,7 +55,7 @@ namespace st_dotnet.Api.Controllers
             return commentRepository.GetChannelComments(id);
         }
 
-        [HttpGet("ChannelCommentsByName/{name}")]
+        [HttpGet("ByChannelName/{name}")]
         public IEnumerable<Comment> GetChannelCommentsByName(string name)
         {
             var channel = channelRepository.GetbyName(name);

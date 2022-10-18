@@ -51,6 +51,7 @@ namespace st_dotnet.Data
             {
                 var entity = db.channels.Attach(updatedChannel);
                 entity.State = Microsoft.EntityFrameworkCore.EntityState.Modified;
+                db.SaveChanges();
                 return updatedChannel;
             }
         }

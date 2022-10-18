@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using st_dotnet.Data;
 
@@ -11,9 +12,10 @@ using st_dotnet.Data;
 namespace st_dotnet.Migrations
 {
     [DbContext(typeof(GalleryDbContext))]
-    partial class GalleryDbContextModelSnapshot : ModelSnapshot
+    [Migration("20221017205813_create_categorychannel")]
+    partial class create_categorychannel
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -34,7 +36,7 @@ namespace st_dotnet.Migrations
 
                     b.HasIndex("ChannelsId");
 
-                    b.ToTable("CategoryChannel", (string)null);
+                    b.ToTable("CategoryChannel");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -259,7 +261,7 @@ namespace st_dotnet.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("categories", (string)null);
+                    b.ToTable("categories");
                 });
 
             modelBuilder.Entity("st_dotnet.Models.Channel", b =>
@@ -296,7 +298,7 @@ namespace st_dotnet.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("channels", (string)null);
+                    b.ToTable("channels");
                 });
 
             modelBuilder.Entity("st_dotnet.Models.Comment", b =>
@@ -322,7 +324,7 @@ namespace st_dotnet.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("comments", (string)null);
+                    b.ToTable("comments");
                 });
 
             modelBuilder.Entity("CategoryChannel", b =>

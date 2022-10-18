@@ -1,5 +1,6 @@
 using System;
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace st_dotnet.Models
 {
@@ -16,5 +17,8 @@ namespace st_dotnet.Models
         public int Type { get; set; }
         [Required, StringLength(300)]
         public string Content { get; set; }
+
+        [JsonIgnore]
+        public List<Category> Categories { get; set; }
     }
 }

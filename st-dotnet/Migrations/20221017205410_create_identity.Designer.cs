@@ -12,8 +12,8 @@ using st_dotnet.Data;
 namespace st_dotnet.Migrations
 {
     [DbContext(typeof(GalleryDbContext))]
-    [Migration("20221003193428_add_identity")]
-    partial class add_identity
+    [Migration("20221017205410_create_identity")]
+    partial class create_identity
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -169,10 +169,12 @@ namespace st_dotnet.Migrations
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
                 {
                     b.Property<string>("LoginProvider")
-                        .HasColumnType("nvarchar(450)");
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)");
 
                     b.Property<string>("ProviderKey")
-                        .HasColumnType("nvarchar(450)");
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)");
 
                     b.Property<string>("ProviderDisplayName")
                         .HasColumnType("nvarchar(max)");
@@ -209,10 +211,12 @@ namespace st_dotnet.Migrations
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("LoginProvider")
-                        .HasColumnType("nvarchar(450)");
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)");
 
                     b.Property<string>("Name")
-                        .HasColumnType("nvarchar(450)");
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)");
 
                     b.Property<string>("Value")
                         .HasColumnType("nvarchar(max)");
