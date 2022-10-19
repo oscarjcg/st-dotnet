@@ -7,7 +7,7 @@ namespace st_dotnet.Models
     {
         public int Id { get; set; }
         [Required]
-        public int ChannelId { get; set; }
+        public int ChannelId { get; set; } // TODO review relationship
         [Required, StringLength(100)]
         public string Author { get; set; }
         [Required, StringLength(300)]

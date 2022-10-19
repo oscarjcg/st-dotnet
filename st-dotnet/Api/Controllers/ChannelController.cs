@@ -64,6 +64,7 @@ namespace st_dotnet.Api.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> Put(int id, IFormCollection form)
         {
+            var channel = channelRepository.GetbyId(id);
             var bucketExists = await s3Client.DoesS3BucketExistAsync(S3_BUTCKET_NAME);
             if (!bucketExists) return NotFound($"Bucket {S3_BUTCKET_NAME} does not exist.");
 
@@ -73,11 +74,19 @@ namespace st_dotnet.Api.Controllers
             var imageKey = $"{S3_BUTCKET_FOLDER}/{Guid.NewGuid().ToString()}";
             var previewKey = $"{S3_BUTCKET_FOLDER}/{Guid.NewGuid().ToString()}";
 
-            if (imageFile == null || previewFile == null) return BadRequest();
-            await UploadFile(imageFile, imageKey);
-            await UploadFile(previewFile, previewKey);
-            // TODO Channel Content Type
-            var channel = new Channel { Id = id, Name = form["name"], Image = imageKey, Preview = previewKey, Type = 1, Content = "c" };
+            if (imageFile != null) {
+                await UploadFile(imageFile, imageKey);
+                channel.Image = imageKey;
+            }
+
+            if (previewFile != null)
+            {
+                await UploadFile(previewFile, previewKey);
+                channel.Preview = previewKey;
+            }
+
+            channel.Name = form["name"];
+
             channelRepository.Update(channel);
             return Ok(channel);
         }

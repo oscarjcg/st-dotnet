@@ -7,6 +7,7 @@
 @model ChannelViewModel
 
 <div class="table-responsive">
+    <div id="status"></div>
     <table id="channels-table" class="mb-0 table">
         <thead>
             <tr>
@@ -27,14 +28,61 @@
                     <td>@channel.Image</td>
                     <td>@channel.Id</td>
                     <td>@channel.Id</td>
+                    <td>
+                        <button class="btn btn-info btn-edit" onclick="edit(@channel.Id)">Edit</button>
+                        <button class="btn btn-danger btn-delete" onclick="del(@channel.Id)">Delete</button>
+                    </td>
                 </tr>
             }
         </tbody>
     </table>
 </div>
 
-<script>$(document).ready(function() {
+<script>
+    $(document).ready(function () {
         $('#channels-table').DataTable({
             "paging": true
         } );
-    } );</script>
+    });
+
+    function edit(id) {
+        window.location.href = window.location.origin + "/channel/edit/" + id;
+    }
+
+    function del(id) {
+        $.ajax({
+            type: "DELETE",
+            url: window.location.origin + "/api/channel/" + id,
+            data: { "id": id },
+            contentType: false,
+            processData: false,
+            success: function (msg) {
+                console.log(msg);
+
+                // Success alert
+
+                $('#status').append(`
+                                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                                        <strong>Success!</strong> Channel deleted
+                                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>`);
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                console.log(xhr.responseText);
+
+                var json = JSON.parse(xhr.responseText)
+                // Error alert
+
+                $('#status').append(`
+                                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                        <strong>Error!</strong> ` + json.message + `
+                                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>`);
+            }
+        });
+    };
+</script>
