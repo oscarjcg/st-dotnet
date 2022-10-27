@@ -15,6 +15,7 @@ builder.Services.AddRazorPages();
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<IChannelRepository, ChannelRepository>();
 builder.Services.AddScoped<ICommentRepository, CommentRepository>();
+builder.Services.AddScoped<IChannelTypeRepository, ChannelTypeRepository>();
 
 
 builder.Services.AddDbContextPool<GalleryDbContext>(options =>
@@ -30,6 +31,8 @@ builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.Requ
 builder.Services.AddScoped<ICategoryData, GalleryDbContext.SqlCategoryData>();
 builder.Services.AddScoped<IChannelData, GalleryDbContext.SqlChannelData>();
 builder.Services.AddScoped<ICommentData, GalleryDbContext.SqlCommentData>();
+builder.Services.AddScoped<IChannelTypeData, GalleryDbContext.SqlChannelTypeData>();
+
 
 
 var credentials = builder.Environment.IsDevelopment() ?
