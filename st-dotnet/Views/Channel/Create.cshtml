@@ -4,6 +4,8 @@
 @{
 }
 
+@model ChannelViewModel
+
 <div class="main-card mb-3 card">
     <div id="status"></div>
 
@@ -39,8 +41,30 @@
                     <small class="form-text text-muted">Square image</small>
                 </div>
             </div>
+
+            <div class="form-row">
+                <div class="col-md-6">
+                    <div class="position-relative form-group">
+                        <label for="content" class="">Content</label>
+                        <input name="content" id="content" placeholder="Channel content" type="text" class="form-control" required>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="position-relative form-group">
+                        <label for="channelTypeId" class="">Select channel type</label>
+                        <select id="channelTypeId" name="channelTypeId" class="custom-select">
+                            @foreach (var channelType in Model.ChannelTypes)
+                            {
+                                <option value="@channelType.Id">@channelType.Name</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+            </div>
+
             <button class="mt-2 btn btn-primary">Create</button>
-        </form>
+
+</form>
     </div>
 </div>
 

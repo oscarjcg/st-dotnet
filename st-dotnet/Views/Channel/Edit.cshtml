@@ -4,7 +4,7 @@
 @{
 }
 
-@model Channel
+@model ChannelViewModel
 
 <div class="main-card mb-3 card">
     <div id="status"></div>
@@ -16,7 +16,7 @@
                 <div class="col-md-6">
                     <div class="position-relative form-group">
                         <label for="name" class="">Name</label>
-                        <input name="name" id="name" placeholder="Channel name" type="text" class="form-control" value="@Model.Name" required>
+                        <input name="name" id="name" placeholder="Channel name" type="text" class="form-control" value="@Model.Channel.Name" required>
                     </div>
                 </div>
                 <div class="col-md-6">
@@ -30,7 +30,7 @@
                 <label for="image" class="col-sm-2 col-form-label">Channel image</label>
                 <div class="col-sm-10">
                     <input name="image" id="image" type="file" class="form-control-file">
-                    <small class="form-text text-muted">Square image - @Model.Image</small>
+                    <small class="form-text text-muted">Square image - @Model.Channel.Image</small>
                 </div>
             </div>
 
@@ -38,9 +38,38 @@
                 <label for="preview" class="col-sm-2 col-form-label">Channel preview</label>
                 <div class="col-sm-10">
                     <input name="preview" id="preview" type="file" class="form-control-file">
-                    <small class="form-text text-muted">Square image - @Model.Preview</small>
+                    <small class="form-text text-muted">Square image - @Model.Channel.Preview</small>
                 </div>
             </div>
+
+            <div class="form-row">
+                <div class="col-md-6">
+                    <div class="position-relative form-group">
+                        <label for="content" class="">Content</label>
+                        <input name="content" id="content" placeholder="Channel content" type="text" class="form-control"
+                               value="@Model.Channel.Content" required>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="position-relative form-group">
+                        <label for="channelTypeId" class="">Select channel type</label>
+                        <select id="channelTypeId" name="channelTypeId" class="custom-select">
+                            @foreach (var channelType in Model.ChannelTypes)
+                            {
+                                @if (channelType.Id == @Model.Channel.ChannelTypeId)
+                                {
+                                    <option value="@channelType.Id" selected>@channelType.Name</option>
+                                }
+                                else
+                                {
+                                    <option value="@channelType.Id">@channelType.Name</option>
+                                }
+                            }
+                        </select>
+                    </div>
+                </div>
+            </div>
+
             <button class="mt-2 btn btn-primary">Edit</button>
         </form>
     </div>
@@ -66,7 +95,7 @@
 
                     $.ajax({
                         type: "PUT",
-                        url: window.location.origin + "/api/channel/@Model.Id",
+                        url: window.location.origin + "/api/channel/@Model.Channel.Id",
                         data: formData,
                         contentType: false,
                         processData: false,

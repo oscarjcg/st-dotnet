@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Channels;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -15,10 +16,12 @@ namespace st_dotnet.Controllers
     public class ChannelController : Controller
     {
         private readonly IChannelRepository channelRepository;
+        private readonly IChannelTypeRepository channelTypeRepository;
 
-        public ChannelController(IChannelRepository channelRepository)
+        public ChannelController(IChannelRepository channelRepository, IChannelTypeRepository channelTypeRepository)
         {
             this.channelRepository = channelRepository;
+            this.channelTypeRepository = channelTypeRepository;
         }
 
         public IActionResult Index()
@@ -31,13 +34,22 @@ namespace st_dotnet.Controllers
 
         public IActionResult Create()
         {
-            return View();
+            var channelTypes = channelTypeRepository.GetAll();
+            return View(new ChannelViewModel
+            {
+                ChannelTypes = channelTypes
+            });
         }
 
         public IActionResult Edit(int id)
         {
+            var channelTypes = channelTypeRepository.GetAll();
             var channel = channelRepository.GetbyId(id);
-            return View(channel);
+            return View(new ChannelViewModel
+            {
+                Channel = channel,
+                ChannelTypes = channelTypes
+            });
         }
     }
 }

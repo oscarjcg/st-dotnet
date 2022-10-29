@@ -13,8 +13,8 @@ namespace st_dotnet.Models
         public string Image { get; set; }
         [Required, StringLength(300)]
         public string Preview { get; set; }
-        [Required, StringLength(300)]
-        public int Type { get; set; }
+        [Required]
+        public int ChannelTypeId { get; set; }
         [Required, StringLength(300)]
         public string Content { get; set; }
 

@@ -16,15 +16,21 @@ namespace st_dotnet.Api.Controllers
     {
         private readonly IChannelRepository channelRepository;
         private readonly ICategoryRepository categoryRepository;
+        private readonly IChannelTypeRepository channelTypeRepository;
         private readonly IAmazonS3 s3Client;
 
         private const string S3_BUTCKET_NAME = "oscar-catari-s3-dev";
         private const string S3_BUTCKET_FOLDER = "publicdev/channel";
 
-        public ChannelController(IChannelRepository channelRepository, ICategoryRepository categoryRepository, IAmazonS3 s3Client)
+        public ChannelController(
+            IChannelRepository channelRepository,
+            ICategoryRepository categoryRepository,
+            IChannelTypeRepository channelTypeRepository,
+            IAmazonS3 s3Client)
         {
             this.channelRepository = channelRepository;
             this.categoryRepository = categoryRepository;
+            this.channelTypeRepository = channelTypeRepository;
             this.s3Client = s3Client;
         }
 
@@ -46,6 +52,10 @@ namespace st_dotnet.Api.Controllers
             var bucketExists = await s3Client.DoesS3BucketExistAsync(S3_BUTCKET_NAME);
             if (!bucketExists) return NotFound($"Bucket {S3_BUTCKET_NAME} does not exist.");
 
+            if (!form.ContainsKey("channelTypeId")) return BadRequest();
+            var channelType = channelTypeRepository.GetbyId(Int32.Parse(form["channelTypeId"]));
+            if (channelType == null) return BadRequest();
+
             var imageFile = form.Files.GetFile("image");
             var previewFile = form.Files.GetFile("preview");
 
@@ -55,8 +65,15 @@ namespace st_dotnet.Api.Controllers
             if (imageFile == null || previewFile == null) return BadRequest();
             await UploadFile(imageFile, imageKey);
             await UploadFile(previewFile, previewKey);
+
             // TODO Channel Content Type
-            channelRepository.Add(new Channel { Name = form["name"], Image = imageKey, Preview = previewKey, Type = 1, Content = "c" });
+            channelRepository.Add(new Channel {
+                Name = form["name"],
+                Image = imageKey,
+                Preview = previewKey,
+                ChannelTypeId = Int32.Parse(form["channelTypeId"]),
+                Content = form["content"]
+            });
 
             return Ok();
         }
@@ -86,6 +103,8 @@ namespace st_dotnet.Api.Controllers
             }
 
             channel.Name = form["name"];
+            channel.ChannelTypeId = Int32.Parse(form["channelTypeId"]);
+            channel.Content = form["content"];
 
             channelRepository.Update(channel);
             return Ok(channel);
