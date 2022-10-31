@@ -11,6 +11,7 @@ namespace st_dotnet.Data
         IEnumerable<Channel> GetAll();
         Channel GetbyId(int id);
         Channel GetbyName(string name);
+        IEnumerable<Channel> Search(string name);
     }
 }
 

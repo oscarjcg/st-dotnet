@@ -4,7 +4,7 @@ using Amazon.S3.Model;
 
 namespace st_dotnet.Models
 {
-    public class Category
+    public class Category : BaseEntity
     {
         public int Id { get; set; }
         [Required, StringLength(100)]

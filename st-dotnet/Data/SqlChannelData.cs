@@ -47,6 +47,14 @@ namespace st_dotnet.Data
                 return query.First();
             }
 
+            public IEnumerable<Channel> Search(string name)
+            {
+                var query = from r in db.channels
+                            where r.Name.Contains(name)
+                            select r;
+                return query;
+            }
+
             public Channel Update(Channel updatedChannel)
             {
                 var entity = db.channels.Attach(updatedChannel);

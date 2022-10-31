@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace st_dotnet.Models
 {
-    public class Comment
+    public class Comment : BaseEntity
     {
         public int Id { get; set; }
         [Required]

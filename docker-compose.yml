@@ -1,0 +1,34 @@
+version: '3.4'
+
+services:
+  st-dotnet:
+    image: ${DOCKER_REGISTRY-}stdotnet
+    build:
+      context: .
+      dockerfile: st-dotnet/Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - GalleryDb__Conn=
+      - S3__AccessKeyId=
+      - S3__SecretKey=
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ~/.aspnet/https:/root/.aspnet/https:ro
+      - ~/.microsoft/usersecrets:/root/.microsoft/usersecrets:ro
+  mssql:
+    build:
+      context: .
+      dockerfile: st-dotnet/SqlEdge/Dockerfile
+    cap_add: [ 'SYS_PTRACE' ]
+    environment:
+      - "ACCEPT_EULA=1"
+      - "MSSQL_SA_PASSWORD="
+    ports:
+      - "1433:1433"
+    hostname: mssql
+    volumes:
+      - "mssql-azuresql-edge-data:/var/opt/mssql"
+volumes:
+    mssql-azuresql-edge-data:

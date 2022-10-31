@@ -7,7 +7,9 @@ using st_dotnet.Models;
 using Microsoft.AspNetCore.Identity;
 using st_dotnet.Areas.Identity.Data;
 
+
 var builder = WebApplication.CreateBuilder(args);
+const string CORS_POLICY = "CORS_POLICY";
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
@@ -16,7 +18,18 @@ builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<IChannelRepository, ChannelRepository>();
 builder.Services.AddScoped<ICommentRepository, CommentRepository>();
 builder.Services.AddScoped<IChannelTypeRepository, ChannelTypeRepository>();
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(name: CORS_POLICY, builder =>
+    {
+        //for when you're running on localhost
+        builder.SetIsOriginAllowed(origin => new Uri(origin).Host == "localhost")
+        .AllowAnyHeader().AllowAnyMethod();
 
+
+        //builder.WithOrigins("url from where you're trying to do the requests")
+    });
+});
 
 builder.Services.AddDbContextPool<GalleryDbContext>(options =>
 {
@@ -84,7 +97,7 @@ if (app.Environment.IsDevelopment())
         string.Join("\n", endpointSources.SelectMany(source => source.Endpoints)));
 }
 
-
+app.UseCors(CORS_POLICY);
 
 
 app.Run();

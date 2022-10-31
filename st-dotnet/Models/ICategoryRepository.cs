@@ -11,6 +11,7 @@ namespace st_dotnet.Models
         Category GetbyId(int id);
         Category GetbyName(string name);
         Category GetChannels(int id);
+        IEnumerable<Category> Search(string name);
     }
 }
 

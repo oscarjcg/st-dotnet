@@ -32,7 +32,15 @@ namespace st_dotnet.Api.Controllers
         [HttpPost]
         public async Task<IActionResult> Post(IFormCollection form)
         {
-            commentRepository.Add(new Comment { ChannelId = Int32.Parse(form["channel_id"]), Author = form["author"], Text= form["comment"] });
+            var now = DateTime.Now;
+            commentRepository.Add(
+                new Comment {
+                    ChannelId = Int32.Parse(form["channel_id"]),
+                    Author = form["author"],
+                    Text= form["comment"],
+                    CreatedAt = now,
+                    UpdatedAt = now
+                });
             return Ok();
         }
 

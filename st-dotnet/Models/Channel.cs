@@ -1,10 +1,11 @@
 using System;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 
 namespace st_dotnet.Models
 {
-    public class Channel
+    public class Channel : BaseEntity
     {
         public int Id { get; set; }
         [Required, StringLength(100)]
@@ -17,6 +18,7 @@ namespace st_dotnet.Models
         public int ChannelTypeId { get; set; }
         [Required, StringLength(300)]
         public string Content { get; set; }
+        
 
         [JsonIgnore]
         public List<Category> Categories { get; set; }

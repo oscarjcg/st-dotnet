@@ -57,6 +57,15 @@ namespace st_dotnet.Data
                 return query.First();
             }
 
+            public IEnumerable<Category> Search(string name)
+            {
+                var query = from c in db.categories
+                            where c.Name.Contains(name)
+                            orderby c.Name
+                            select c;
+                return query;
+            }
+
             public Category Update(Category updatedCategory)
             {
                 var entity = db.categories.Attach(updatedCategory);

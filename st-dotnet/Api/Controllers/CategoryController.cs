@@ -20,6 +20,7 @@ namespace st_dotnet.Api.Controllers
 
         private const string S3_BUTCKET_NAME = "oscar-catari-s3-dev";
         private const string S3_BUTCKET_FOLDER = "publicdev/category";
+        private const string S3_URL = "https://oscar-catari-s3-dev.s3.eu-central-1.amazonaws.com/";
 
         public CategoryController(ICategoryRepository categoryRepository, IChannelRepository channelRepository, IAmazonS3 s3Client)
         {
@@ -51,22 +52,30 @@ namespace st_dotnet.Api.Controllers
             if (imageFile == null) return BadRequest();
             await UploadFile(imageFile, imageKey);
 
-            _categoryRepository.Add(new Category { Name = form["name"], Image = imageKey });
+            var now = DateTime.Now;
+            _categoryRepository.Add(new Category { Name = form["name"], Image = $"{S3_URL}{imageKey}", CreatedAt = now, UpdatedAt = now });
             return Ok();
         }
 
         [HttpPut("{id}")]
         public async Task<IActionResult> Put(int id, IFormCollection form)
         {
+            // TODO Review optional image
             var bucketExists = await s3Client.DoesS3BucketExistAsync(S3_BUTCKET_NAME);
             if (!bucketExists) return NotFound($"Bucket {S3_BUTCKET_NAME} does not exist.");
+
+            var category = _categoryRepository.GetbyId(id);
+            if (category == null) return BadRequest();
 
             var imageFile = form.Files.GetFile("image");
             var imageKey = $"{S3_BUTCKET_FOLDER}/{Guid.NewGuid().ToString()}";
             if (imageFile == null) return BadRequest();
             await UploadFile(imageFile, imageKey);
 
-            var category = new Category { Id = id, Name = form["name"], Image = imageKey };
+            
+            category.Name = form["name"];
+            category.Image = $"{S3_URL}{imageKey}";
+            category.UpdatedAt = DateTime.Now;
             _categoryRepository.Update(category);
             return Ok();
         }

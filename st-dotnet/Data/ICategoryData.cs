@@ -12,6 +12,7 @@ namespace st_dotnet.Data
         IEnumerable<Category> GetAll();
         Category GetbyId(int id);
         Category GetbyName(string name);
+        IEnumerable<Category> Search(string name);
     }
 }
  

@@ -21,6 +21,7 @@ namespace st_dotnet.Api.Controllers
 
         private const string S3_BUTCKET_NAME = "oscar-catari-s3-dev";
         private const string S3_BUTCKET_FOLDER = "publicdev/channel";
+        private const string S3_URL = "https://oscar-catari-s3-dev.s3.eu-central-1.amazonaws.com/";
 
         public ChannelController(
             IChannelRepository channelRepository,
@@ -67,12 +68,15 @@ namespace st_dotnet.Api.Controllers
             await UploadFile(previewFile, previewKey);
 
             // TODO Channel Content Type
+            var now = DateTime.Now;
             channelRepository.Add(new Channel {
                 Name = form["name"],
-                Image = imageKey,
-                Preview = previewKey,
+                Image = $"{S3_URL}{imageKey}",
+                Preview = $"{S3_URL}{previewKey}",
                 ChannelTypeId = Int32.Parse(form["channelTypeId"]),
-                Content = form["content"]
+                Content = form["content"],
+                CreatedAt = now,
+                UpdatedAt = now
             });
 
             return Ok();
@@ -93,18 +97,19 @@ namespace st_dotnet.Api.Controllers
 
             if (imageFile != null) {
                 await UploadFile(imageFile, imageKey);
-                channel.Image = imageKey;
+                channel.Image = $"{S3_URL}{imageKey}";
             }
 
             if (previewFile != null)
             {
                 await UploadFile(previewFile, previewKey);
-                channel.Preview = previewKey;
+                channel.Preview = $"{S3_URL}{previewKey}";
             }
 
             channel.Name = form["name"];
             channel.ChannelTypeId = Int32.Parse(form["channelTypeId"]);
             channel.Content = form["content"];
+            channel.UpdatedAt = DateTime.Now;
 
             channelRepository.Update(channel);
             return Ok(channel);

@@ -49,6 +49,11 @@ namespace st_dotnet.Models
             return categoryData.GetbyId(id).Channels;
         }
 
+        public IEnumerable<Category> Search(string name)
+        {
+            return categoryData.Search(name);
+        }
+
         public Category Update(Category updatedCategory)
         {
             categoryData.Update(updatedCategory);

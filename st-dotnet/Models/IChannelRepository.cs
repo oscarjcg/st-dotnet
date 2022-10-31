@@ -9,5 +9,6 @@ namespace st_dotnet.Models
         Channel Delete(int id);
         Channel GetbyId(int id);
         Channel GetbyName(string name);
+        IEnumerable<Channel> Search(string name);
     }
 }

@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace st_dotnet.Models
 {
-    public class ChannelType
+    public class ChannelType : BaseEntity
     {
         public int Id { get; set; }
         [Required, StringLength(50)]

@@ -36,7 +36,11 @@ namespace st_dotnet.Models
         {
             return channelData.GetbyName(name);
         }
-        
+
+        public IEnumerable<Channel> Search(string name)
+        {
+            return channelData.Search(name);
+        }
 
         public Channel Update(Channel updatedChannel)
         {

@@ -35,7 +35,8 @@ namespace st_dotnet.Api.Controllers
         [HttpPost]
         public void Post(IFormCollection form)
         {
-            var channelType = new ChannelType { Name = form["name"] };
+            var now = DateTime.Now;
+            var channelType = new ChannelType { Name = form["name"], CreatedAt = now, UpdatedAt = now };
             channelTypeRepository.Add(channelType);
         }
 
@@ -45,6 +46,7 @@ namespace st_dotnet.Api.Controllers
             var channelType = channelTypeRepository.GetbyId(id);
             if (channelType == null) return BadRequest();
             channelType.Name = form["name"];
+            channelType.UpdatedAt = DateTime.Now;
 
             channelTypeRepository.Update(channelType);
             return Ok(channelType);
