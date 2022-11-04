@@ -19,7 +19,7 @@ namespace st_dotnet.Api.Controllers
         private readonly IAmazonS3 s3Client;
 
         private const string S3_BUTCKET_NAME = "oscar-catari-s3-dev";
-        private const string S3_BUTCKET_FOLDER = "publicdev/category";
+        private const string S3_BUTCKET_FOLDER = "public/category";
         private const string S3_URL = "https://oscar-catari-s3-dev.s3.eu-central-1.amazonaws.com/";
 
         public CategoryController(ICategoryRepository categoryRepository, IChannelRepository channelRepository, IAmazonS3 s3Client)

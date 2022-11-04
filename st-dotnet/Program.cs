@@ -33,10 +33,13 @@ builder.Services.AddCors(options =>
 
 builder.Services.AddDbContextPool<GalleryDbContext>(options =>
 {
-    if (builder.Environment.IsDevelopment())
-        options.UseSqlServer(builder.Configuration["GalleryDb:Conn"]);
-    else
-        options.UseSqlServer(builder.Configuration.GetConnectionString("GalleryDb"));
+    //if (builder.Environment.IsDevelopment())
+    //{
+        options.UseMySql(
+            builder.Configuration["GalleryMySql:Conn"], 
+            ServerVersion.AutoDetect(builder.Configuration["GalleryMySql:Conn"])
+        );
+    //}
 });
 
 builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = false)
