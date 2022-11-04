@@ -8,27 +8,26 @@ services:
       dockerfile: st-dotnet/Dockerfile
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - GalleryDb__Conn=
+      - GalleryMySql__Conn=server=db; database=GALLERY; user=; password=
       - S3__AccessKeyId=
       - S3__SecretKey=
     ports:
-      - "80:80"
+      - "8086:80"
       - "443:443"
     volumes:
       - ~/.aspnet/https:/root/.aspnet/https:ro
       - ~/.microsoft/usersecrets:/root/.microsoft/usersecrets:ro
-  mssql:
-    build:
-      context: .
-      dockerfile: st-dotnet/SqlEdge/Dockerfile
-    cap_add: [ 'SYS_PTRACE' ]
+  db:
+    image: mysql:8.0
+    restart: always
     environment:
-      - "ACCEPT_EULA=1"
-      - "MSSQL_SA_PASSWORD="
+      - MYSQL_DATABASE=GALLERY
+      - MYSQL_ROOT_PASSWORD=
     ports:
-      - "1433:1433"
-    hostname: mssql
+      - '3306:3306'
+    hostname: db
     volumes:
-      - "mssql-azuresql-edge-data:/var/opt/mssql"
+      - db:/var/lib/mysql
 volumes:
-    mssql-azuresql-edge-data:
+  db:
+    driver: local
