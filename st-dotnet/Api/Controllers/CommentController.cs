@@ -1,10 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using Amazon.S3;
 using Amazon.S3.Model;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using st_dotnet.Models;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -41,6 +43,17 @@ namespace st_dotnet.Api.Controllers
                     CreatedAt = now,
                     UpdatedAt = now
                 });
+
+            var nodeRequest = new NewMessageRequest();
+            nodeRequest.channel_id = form["channel_id"];
+            var json = JsonConvert.SerializeObject(nodeRequest);
+            var data = new StringContent(json, Encoding.UTF8, "application/json");
+
+            var url = "http://st-node.oscarcatarigutierrez.com/new-message";
+            using var client = new HttpClient();
+
+            var response = await client.PostAsync(url, data);
+
             return Ok();
         }
 
