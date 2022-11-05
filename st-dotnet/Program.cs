@@ -18,18 +18,34 @@ builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<IChannelRepository, ChannelRepository>();
 builder.Services.AddScoped<ICommentRepository, CommentRepository>();
 builder.Services.AddScoped<IChannelTypeRepository, ChannelTypeRepository>();
-builder.Services.AddCors(options =>
+
+if (builder.Environment.IsDevelopment())
 {
-    options.AddPolicy(name: CORS_POLICY, builder =>
+    builder.Services.AddCors(options =>
     {
-        //for when you're running on localhost
-        builder.SetIsOriginAllowed(origin => new Uri(origin).Host == "localhost")
-        .AllowAnyHeader().AllowAnyMethod();
-
-
-        //builder.WithOrigins("url from where you're trying to do the requests")
+        options.AddPolicy(name: CORS_POLICY, builder =>
+        {
+            //for when you're running on localhost
+            builder.SetIsOriginAllowed(origin => new Uri(origin).Host == "localhost")
+            .AllowAnyHeader().AllowAnyMethod();
+        });
     });
-});
+}
+else
+{
+    builder.Services.AddCors(options =>
+    {
+        options.AddPolicy(name: CORS_POLICY, builder =>
+        {
+            builder.WithOrigins(
+                "http://simple-twitch.oscarcatarigutierrez.com",
+                "https://simple-twitch.oscarcatarigutierrez.com",
+                "http://st-react.oscarcatarigutierrez.com",
+                "https://st-react.oscarcatarigutierrez.com")
+                .AllowAnyHeader().AllowAnyMethod();
+        });
+    });
+}
 
 builder.Services.AddDbContextPool<GalleryDbContext>(options =>
 {
