@@ -38,10 +38,10 @@ else
         options.AddPolicy(name: CORS_POLICY, builder =>
         {
             builder.WithOrigins(
-                "http://simple-twitch.oscarcatarigutierrez.com",
-                "https://simple-twitch.oscarcatarigutierrez.com",
-                "http://st-react.oscarcatarigutierrez.com",
-                "https://st-react.oscarcatarigutierrez.com")
+                "http://simple-twitch.codename-project.com",
+                "https://simple-twitch.codename-project.com",
+                "http://st-react.codename-project.com",
+                "https://st-react.codename-project.com")
                 .AllowAnyHeader().AllowAnyMethod();
         });
     });

@@ -49,7 +49,7 @@ namespace st_dotnet.Api.Controllers
             var json = JsonConvert.SerializeObject(nodeRequest);
             var data = new StringContent(json, Encoding.UTF8, "application/json");
 
-            var url = "http://st-node.oscarcatarigutierrez.com/new-message";
+            var url = "http://st-node.codename-project.com/new-message";
             using var client = new HttpClient();
 
             var response = await client.PostAsync(url, data);
