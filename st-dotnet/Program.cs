@@ -85,6 +85,14 @@ builder.Services.AddAWSService<IAmazonS3>();
 
 
 var app = builder.Build();
+/* TODO: Fix migrations on fresh db
+if (app.Environment.IsDevelopment())
+{
+    using var scope = app.Services.CreateScope();
+    var db = scope.ServiceProvider.GetRequiredService<GalleryDbContext>();
+    db.Database.Migrate();
+}
+*/
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())

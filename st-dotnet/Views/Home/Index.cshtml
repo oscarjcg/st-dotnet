@@ -7,13 +7,21 @@
 
 @inject SignInManager<IdentityUser> SignInManager
 @inject UserManager<IdentityUser> UserManager
+@inject Microsoft.AspNetCore.Hosting.IWebHostEnvironment Env
 
 <div class="text-center">
     <h1 class="display-4"><b>Welcome!!</b></h1>
     @if (!SignInManager.IsSignedIn(User))
     {
         <h2>Please <a id="login" asp-area="Identity" asp-page="/Account/Login">Login</a></h2>
-        <h2>Registering is disabled</h2>
+        @if (Env.IsDevelopment())
+        {
+            <h2>Or <a id="register" asp-area="Identity" asp-page="/Account/Register">Register</a></h2>
+        }
+        else
+        {
+            <h2>Registering is disabled</h2>
+        }
     }
 </div>
 
