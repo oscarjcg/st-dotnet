@@ -1,0 +1,11 @@
+name: st-dotnet-standalone
+
+services:
+  st-dotnet:
+    restart: unless-stopped
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+    ports:
+      - "127.0.0.1:8086:8080"
+  db:
+    restart: unless-stopped

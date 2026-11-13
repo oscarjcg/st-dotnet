@@ -5,6 +5,7 @@ using Microsoft.Extensions.Configuration;
 using st_dotnet.Data;
 using st_dotnet.Models;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.HttpOverrides;
 using st_dotnet.Areas.Identity.Data;
 
 
@@ -67,15 +68,17 @@ builder.Services.AddScoped<IChannelTypeData, GalleryDbContext.SqlChannelTypeData
 
 
 
-var credentials = builder.Environment.IsDevelopment() ?
-    new BasicAWSCredentials(
-        builder.Configuration["S3:AccessKeyId"],
-        builder.Configuration["S3:SecretKey"]
-    ) :
-    new BasicAWSCredentials(
-        builder.Configuration.GetSection("S3_Config")["AccessKeyId"],
-        builder.Configuration.GetSection("S3_Config")["SecretKey"]
-    );
+var credentials = new BasicAWSCredentials(
+    builder.Configuration["S3:AccessKeyId"],
+    builder.Configuration["S3:SecretKey"]
+);
+
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+    options.KnownIPNetworks.Clear();
+    options.KnownProxies.Clear();
+});
 
 var awsOption = builder.Configuration.GetAWSOptions();
 awsOption.Credentials = credentials;
@@ -95,17 +98,24 @@ if (app.Environment.IsDevelopment())
 */
 
 // Configure the HTTP request pipeline.
+app.UseForwardedHeaders();
+
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
+else
+{
+    app.UseHttpsRedirection();
+}
 
-app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
+
+app.UseCors(CORS_POLICY);
 
 app.UseAuthentication();
 app.UseAuthorization();
@@ -123,9 +133,6 @@ if (app.Environment.IsDevelopment())
     app.MapGet("/debug/routes", (IEnumerable<EndpointDataSource> endpointSources) =>
         string.Join("\n", endpointSources.SelectMany(source => source.Endpoints)));
 }
-
-app.UseCors(CORS_POLICY);
-
 
 app.Run();
 

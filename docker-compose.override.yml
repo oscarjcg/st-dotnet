@@ -1,0 +1,12 @@
+services:
+  st-dotnet:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+    ports:
+      - "8086:8080"
+    volumes:
+      - ~/.aspnet/https:/root/.aspnet/https:ro
+      - ~/.microsoft/usersecrets:/root/.microsoft/usersecrets:ro
+  db:
+    ports:
+      - "3306:3306"

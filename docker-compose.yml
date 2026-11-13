@@ -1,5 +1,3 @@
-version: '3.4'
-
 services:
   st-dotnet:
     image: ${DOCKER_REGISTRY-}stdotnet
@@ -7,27 +5,19 @@ services:
       context: .
       dockerfile: st-dotnet/Dockerfile
     environment:
-      - ASPNETCORE_ENVIRONMENT=Development
-      - GalleryMySql__Conn=server=db; database=GALLERY; user=; password=
-      - S3__AccessKeyId=
-      - S3__SecretKey=
-    ports:
-      - "8086:8080"
-      - "443:443"
-    volumes:
-      - ~/.aspnet/https:/root/.aspnet/https:ro
-      - ~/.microsoft/usersecrets:/root/.microsoft/usersecrets:ro
+      - GalleryMySql__Conn=server=db;database=${MYSQL_DATABASE};user=${MYSQL_USER};password=${MYSQL_PASSWORD}
+      - S3__AccessKeyId=${S3_ACCESS_KEY_ID}
+      - S3__SecretKey=${S3_SECRET_KEY}
     depends_on:
       db:
         condition: service_healthy
   db:
     image: mysql:8.4
-    restart: always
     environment:
-      - MYSQL_DATABASE=GALLERY
-      - MYSQL_ROOT_PASSWORD=
-    ports:
-      - '3306:3306'
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
     hostname: db
     volumes:
       - db:/var/lib/mysql
@@ -36,6 +26,7 @@ services:
       interval: 5s
       timeout: 5s
       retries: 20
+
 volumes:
   db:
     driver: local
