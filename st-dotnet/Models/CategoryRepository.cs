@@ -31,7 +31,7 @@ namespace st_dotnet.Models
 
         public IEnumerable<Category> GetAll()
         {
-            throw new NotImplementedException();
+            return categoryData.GetAll();
         }
 
         public Category GetbyId(int id)
@@ -46,7 +46,7 @@ namespace st_dotnet.Models
 
         public IEnumerable<Channel> GetChannels(int id)
         {
-            return categoryData.GetbyId(id).Channels;
+            return categoryData.GetbyId(id)?.Channels ?? new List<Channel>();
         }
 
         public IEnumerable<Category> Search(string name)

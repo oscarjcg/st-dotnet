@@ -45,7 +45,7 @@ namespace st_dotnet.Data
             {
                 return db.categories.Where(c => c.Id == id)
                         .Include(c => c.Channels)
-                        .First();
+                        .FirstOrDefault();
             }
 
             public Category GetbyName(string name)
@@ -54,7 +54,7 @@ namespace st_dotnet.Data
                             where c.Name.StartsWith(name) || string.IsNullOrEmpty(name)
                             orderby c.Name
                             select c;
-                return query.First();
+                return query.FirstOrDefault();
             }
 
             public IEnumerable<Category> Search(string name)

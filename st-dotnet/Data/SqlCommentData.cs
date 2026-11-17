@@ -37,6 +37,7 @@ namespace st_dotnet.Data
             Comment ICommentData.Delete(int id)
             {
                 var comment = db.comments.Find(id);
+                if (comment == null) return null;
                 db.comments.Remove(comment);
                 db.SaveChanges();
                 return comment;

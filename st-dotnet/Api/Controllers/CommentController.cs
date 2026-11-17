@@ -1,13 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using Amazon.S3;
-using Amazon.S3.Model;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
 using st_dotnet.Models;
+using st_dotnet.Services;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -18,11 +15,13 @@ namespace st_dotnet.Api.Controllers
     {
         private readonly ICommentRepository commentRepository;
         private readonly IChannelRepository channelRepository;
+        private readonly INewMessageNotifier newMessageNotifier;
 
-        public CommentController(ICommentRepository commentRepository, IChannelRepository channelRepository)
+        public CommentController(ICommentRepository commentRepository, IChannelRepository channelRepository, INewMessageNotifier newMessageNotifier)
         {
             this.commentRepository = commentRepository;
             this.channelRepository = channelRepository;
+            this.newMessageNotifier = newMessageNotifier;
         }
 
         [HttpGet]
@@ -34,34 +33,30 @@ namespace st_dotnet.Api.Controllers
         [HttpPost]
         public async Task<IActionResult> Post(IFormCollection form)
         {
+            if (!int.TryParse(form["channel_id"], out var channelId)) return BadRequest();
+
             var now = DateTime.Now;
             commentRepository.Add(
                 new Comment {
-                    ChannelId = Int32.Parse(form["channel_id"]),
+                    ChannelId = channelId,
                     Author = form["author"],
                     Text= form["comment"],
                     CreatedAt = now,
                     UpdatedAt = now
                 });
 
-            var nodeRequest = new NewMessageRequest();
-            nodeRequest.channel_id = form["channel_id"];
-            var json = JsonConvert.SerializeObject(nodeRequest);
-            var data = new StringContent(json, Encoding.UTF8, "application/json");
-
-            var url = "http://st-node.codename-project.com/new-message";
-            using var client = new HttpClient();
-
-            var response = await client.PostAsync(url, data);
+            await newMessageNotifier.NotifyAsync(channelId.ToString(), HttpContext?.RequestAborted ?? default);
 
             return Ok();
         }
 
 
         [HttpDelete("{id}")]
-        public Comment Delete(int id)
+        public ActionResult<Comment> Delete(int id)
         {
-            return commentRepository.Delete(id);
+            var comment = commentRepository.Delete(id);
+            if (comment == null) return NotFound();
+            return comment;
         }
 
         [HttpDelete("ChannelComments/{id}")]
@@ -77,12 +72,12 @@ namespace st_dotnet.Api.Controllers
         }
 
         [HttpGet("ByChannelName/{name}")]
-        public IEnumerable<Comment> GetChannelCommentsByName(string name)
+        public ActionResult<IEnumerable<Comment>> GetChannelCommentsByName(string name)
         {
             var channel = channelRepository.GetbyName(name);
-            return commentRepository.GetChannelComments(channel.Id);
+            if (channel == null) return NotFound();
+            return Ok(commentRepository.GetChannelComments(channel.Id));
         }
 
     }
 }
-

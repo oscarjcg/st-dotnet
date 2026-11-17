@@ -7,6 +7,7 @@ using st_dotnet.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.HttpOverrides;
 using st_dotnet.Areas.Identity.Data;
+using st_dotnet.Services;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -80,14 +81,40 @@ builder.Services.Configure<ForwardedHeadersOptions>(options =>
     options.KnownProxies.Clear();
 });
 
-var awsOption = builder.Configuration.GetAWSOptions();
-awsOption.Credentials = credentials;
-awsOption.Region = Amazon.RegionEndpoint.EUCentral1;
-builder.Services.AddDefaultAWSOptions(awsOption);
-builder.Services.AddAWSService<IAmazonS3>();
+builder.Services.Configure<S3Settings>(builder.Configuration.GetSection(S3Settings.SectionName));
+var s3ServiceUrl = builder.Configuration["S3:ServiceUrl"];
+if (string.IsNullOrWhiteSpace(s3ServiceUrl))
+{
+    var awsOption = builder.Configuration.GetAWSOptions();
+    awsOption.Credentials = credentials;
+    awsOption.Region = Amazon.RegionEndpoint.EUCentral1;
+    builder.Services.AddDefaultAWSOptions(awsOption);
+    builder.Services.AddAWSService<IAmazonS3>();
+}
+else
+{
+    builder.Services.AddSingleton<IAmazonS3>(_ => new AmazonS3Client(credentials, new AmazonS3Config
+    {
+        ServiceURL = s3ServiceUrl,
+        ForcePathStyle = true,
+        AuthenticationRegion = Amazon.RegionEndpoint.EUCentral1.SystemName
+    }));
+}
+
+builder.Services.AddHttpClient<INewMessageNotifier, NodeNewMessageNotifier>(client =>
+{
+    client.Timeout = TimeSpan.FromSeconds(5);
+});
 
 
 var app = builder.Build();
+
+if (app.Configuration.GetValue<bool>("Testing:EnsureDatabaseCreated"))
+{
+    using var scope = app.Services.CreateScope();
+    scope.ServiceProvider.GetRequiredService<GalleryDbContext>().Database.EnsureCreated();
+}
+
 /* TODO: Fix migrations on fresh db
 if (app.Environment.IsDevelopment())
 {

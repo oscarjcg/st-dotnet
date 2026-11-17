@@ -37,6 +37,7 @@ namespace st_dotnet.Controllers
         public IActionResult Edit(int id)
         {
             var channel = channelTypeRepository.GetbyId(id);
+            if (channel == null) return NotFound();
             return View(channel);
         }
     }

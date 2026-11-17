@@ -45,6 +45,7 @@ namespace st_dotnet.Controllers
         {
             var channelTypes = channelTypeRepository.GetAll();
             var channel = channelRepository.GetbyId(id);
+            if (channel == null) return NotFound();
             return View(new ChannelViewModel
             {
                 Channel = channel,

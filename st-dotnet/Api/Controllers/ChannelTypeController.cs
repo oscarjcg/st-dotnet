@@ -27,9 +27,11 @@ namespace st_dotnet.Api.Controllers
         }
 
         [HttpGet("{id}")]
-        public ChannelType Get(int id)
+        public ActionResult<ChannelType> Get(int id)
         {
-            return channelTypeRepository.GetbyId(id);
+            var channelType = channelTypeRepository.GetbyId(id);
+            if (channelType == null) return NotFound();
+            return channelType;
         }
 
         [HttpPost]
@@ -41,10 +43,10 @@ namespace st_dotnet.Api.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Put(int id, IFormCollection form)
+        public IActionResult Put(int id, IFormCollection form)
         {
             var channelType = channelTypeRepository.GetbyId(id);
-            if (channelType == null) return BadRequest();
+            if (channelType == null) return NotFound();
             channelType.Name = form["name"];
             channelType.UpdatedAt = DateTime.Now;
 
@@ -53,10 +55,11 @@ namespace st_dotnet.Api.Controllers
         }
 
         [HttpDelete("{id}")]
-        public ChannelType Delete(int id)
+        public ActionResult<ChannelType> Delete(int id)
         {
-            return channelTypeRepository.Delete(id);
+            var channelType = channelTypeRepository.Delete(id);
+            if (channelType == null) return NotFound();
+            return channelType;
         }
     }
 }
-

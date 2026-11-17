@@ -32,6 +32,7 @@ namespace st_dotnet.Controllers
         public IActionResult Edit(int id)
         {
             var category = _categoryRepository.GetbyId(id);
+            if (category == null) return NotFound();
             return View(category);
         }
 

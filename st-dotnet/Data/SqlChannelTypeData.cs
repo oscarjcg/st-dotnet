@@ -42,7 +42,7 @@ namespace st_dotnet.Data
             public ChannelType GetbyId(int id)
             {
                 return db.channelTypes.Where(c => c.Id == id)
-                        .First();
+                        .FirstOrDefault();
             }
 
             public ChannelType GetbyName(string name)
@@ -51,7 +51,7 @@ namespace st_dotnet.Data
                             where c.Name.StartsWith(name) || string.IsNullOrEmpty(name)
                             orderby c.Name
                             select c;
-                return query.First();
+                return query.FirstOrDefault();
             }
 
             public ChannelType Update(ChannelType channelType)

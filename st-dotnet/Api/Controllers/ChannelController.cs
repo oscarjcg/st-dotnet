@@ -5,7 +5,9 @@ using System.Threading.Tasks;
 using Amazon.S3;
 using Amazon.S3.Model;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 using st_dotnet.Models;
+using st_dotnet.Services;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -18,21 +20,22 @@ namespace st_dotnet.Api.Controllers
         private readonly ICategoryRepository categoryRepository;
         private readonly IChannelTypeRepository channelTypeRepository;
         private readonly IAmazonS3 s3Client;
+        private readonly S3Settings s3Settings;
 
-        private const string S3_BUTCKET_NAME = "oscar-catari-s3-dev";
         private const string S3_BUTCKET_FOLDER = "public/channel";
-        private const string S3_URL = "https://oscar-catari-s3-dev.s3.eu-central-1.amazonaws.com/";
 
         public ChannelController(
             IChannelRepository channelRepository,
             ICategoryRepository categoryRepository,
             IChannelTypeRepository channelTypeRepository,
-            IAmazonS3 s3Client)
+            IAmazonS3 s3Client,
+            IOptions<S3Settings> s3Settings)
         {
             this.channelRepository = channelRepository;
             this.categoryRepository = categoryRepository;
             this.channelTypeRepository = channelTypeRepository;
             this.s3Client = s3Client;
+            this.s3Settings = s3Settings.Value;
         }
 
         [HttpGet]
@@ -42,19 +45,21 @@ namespace st_dotnet.Api.Controllers
         }
 
         [HttpGet("{id}")]
-        public Channel Get(int id)
+        public ActionResult<Channel> Get(int id)
         {
-            return channelRepository.GetbyId(id);
+            var channel = channelRepository.GetbyId(id);
+            if (channel == null) return NotFound();
+            return channel;
         }
 
         [HttpPost]
         public async Task<IActionResult> Post(IFormCollection form)
         {
-            var bucketExists = await s3Client.DoesS3BucketExistAsync(S3_BUTCKET_NAME);
-            if (!bucketExists) return NotFound($"Bucket {S3_BUTCKET_NAME} does not exist.");
+            var bucketExists = await s3Client.DoesS3BucketExistAsync(s3Settings.BucketName);
+            if (!bucketExists) return NotFound($"Bucket {s3Settings.BucketName} does not exist.");
 
-            if (!form.ContainsKey("channelTypeId")) return BadRequest();
-            var channelType = channelTypeRepository.GetbyId(Int32.Parse(form["channelTypeId"]));
+            if (!int.TryParse(form["channelTypeId"], out var channelTypeId)) return BadRequest();
+            var channelType = channelTypeRepository.GetbyId(channelTypeId);
             if (channelType == null) return BadRequest();
 
             var imageFile = form.Files.GetFile("image");
@@ -71,9 +76,9 @@ namespace st_dotnet.Api.Controllers
             var now = DateTime.Now;
             channelRepository.Add(new Channel {
                 Name = form["name"],
-                Image = $"{S3_URL}{imageKey}",
-                Preview = $"{S3_URL}{previewKey}",
-                ChannelTypeId = Int32.Parse(form["channelTypeId"]),
+                Image = $"{s3Settings.PublicUrl}{imageKey}",
+                Preview = $"{s3Settings.PublicUrl}{previewKey}",
+                ChannelTypeId = channelTypeId,
                 Content = form["content"],
                 CreatedAt = now,
                 UpdatedAt = now
@@ -86,8 +91,11 @@ namespace st_dotnet.Api.Controllers
         public async Task<IActionResult> Put(int id, IFormCollection form)
         {
             var channel = channelRepository.GetbyId(id);
-            var bucketExists = await s3Client.DoesS3BucketExistAsync(S3_BUTCKET_NAME);
-            if (!bucketExists) return NotFound($"Bucket {S3_BUTCKET_NAME} does not exist.");
+            if (channel == null) return NotFound();
+            if (!int.TryParse(form["channelTypeId"], out var channelTypeId)) return BadRequest();
+
+            var bucketExists = await s3Client.DoesS3BucketExistAsync(s3Settings.BucketName);
+            if (!bucketExists) return NotFound($"Bucket {s3Settings.BucketName} does not exist.");
 
             var imageFile = form.Files.GetFile("image");
             var previewFile = form.Files.GetFile("preview");
@@ -97,17 +105,17 @@ namespace st_dotnet.Api.Controllers
 
             if (imageFile != null) {
                 await UploadFile(imageFile, imageKey);
-                channel.Image = $"{S3_URL}{imageKey}";
+                channel.Image = $"{s3Settings.PublicUrl}{imageKey}";
             }
 
             if (previewFile != null)
             {
                 await UploadFile(previewFile, previewKey);
-                channel.Preview = $"{S3_URL}{previewKey}";
+                channel.Preview = $"{s3Settings.PublicUrl}{previewKey}";
             }
 
             channel.Name = form["name"];
-            channel.ChannelTypeId = Int32.Parse(form["channelTypeId"]);
+            channel.ChannelTypeId = channelTypeId;
             channel.Content = form["content"];
             channel.UpdatedAt = DateTime.Now;
 
@@ -116,16 +124,18 @@ namespace st_dotnet.Api.Controllers
         }
 
         [HttpDelete("{id}")]
-        public Channel Delete(int id)
+        public ActionResult<Channel> Delete(int id)
         {
-            return channelRepository.Delete(id);
+            var channel = channelRepository.Delete(id);
+            if (channel == null) return NotFound();
+            return channel;
         }
 
         private async Task<PutObjectResponse> UploadFile(IFormFile imageFile, string imageKey)
         {
             var request = new PutObjectRequest()
             {
-                BucketName = S3_BUTCKET_NAME,
+                BucketName = s3Settings.BucketName,
                 Key = imageKey,
                 InputStream = imageFile.OpenReadStream(),
                 CannedACL = S3CannedACL.PublicRead
@@ -135,16 +145,20 @@ namespace st_dotnet.Api.Controllers
         }
 
         [HttpGet("byname/{name}")]
-        public Channel GetChannelByName(string name)
+        public ActionResult<Channel> GetChannelByName(string name)
         {
-            return channelRepository.GetbyName(name);
+            var channel = channelRepository.GetbyName(name);
+            if (channel == null) return NotFound();
+            return channel;
         }
 
         [HttpPut("{id}/addcategory/{category_id}")]
-        public async Task<IActionResult> AddCategory(int id, int category_id)
+        public IActionResult AddCategory(int id, int category_id)
         {
             var channel = channelRepository.GetbyId(id);
+            if (channel == null) return NotFound();
             var category = categoryRepository.GetbyId(category_id);
+            if (category == null) return NotFound();
             if (channel.Categories == null)
                 channel.Categories = new List<Category>();
             channel.Categories.Add(category);
@@ -153,4 +167,3 @@ namespace st_dotnet.Api.Controllers
         }
     }
 }
-

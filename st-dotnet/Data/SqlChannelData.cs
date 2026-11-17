@@ -24,6 +24,7 @@ namespace st_dotnet.Data
             public Channel Delete(int id)
             {
                 var channel = db.channels.Find(id);
+                if (channel == null) return null;
                 db.channels.Remove(channel);
                 db.SaveChanges();
                 return channel;
@@ -44,7 +45,7 @@ namespace st_dotnet.Data
                 var query = from r in db.channels
                             where r.Name == name
                             select r;
-                return query.First();
+                return query.FirstOrDefault();
             }
 
             public IEnumerable<Channel> Search(string name)
