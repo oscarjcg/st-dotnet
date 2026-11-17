@@ -1,3 +1,7 @@
+[![Build](https://github.com/oscarjcg/st-dotnet/actions/workflows/build.yml/badge.svg?branch=master)](https://github.com/oscarjcg/st-dotnet/actions/workflows/build.yml)
+[![Unit tests](https://github.com/oscarjcg/st-dotnet/actions/workflows/unit-tests.yml/badge.svg?branch=master)](https://github.com/oscarjcg/st-dotnet/actions/workflows/unit-tests.yml)
+[![UI tests](https://github.com/oscarjcg/st-dotnet/actions/workflows/ui-tests.yml/badge.svg?branch=master)](https://github.com/oscarjcg/st-dotnet/actions/workflows/ui-tests.yml)
+
 ## EF Core
 
 ```
@@ -84,3 +88,12 @@ docker compose -f docker-compose.test.yml down -v
 Results go to `test-results/` (git-ignored):
 - `unit.trx` and `ui.trx`
 - for every failing UI test, a screenshot `<Test>.png` and a Playwright trace `<Test>.zip`. To open a trace, drop it on https://trace.playwright.dev.
+
+### CI
+
+The badges at the top come from the GitHub Actions workflows in `.github/workflows/`. These run the same Docker commands on every push and pull request to `master`:
+- `build.yml` builds the app image
+- `unit-tests.yml` runs the unit tests
+- `ui-tests.yml` runs the UI tests
+
+Each run shows a pass/fail count in its summary. The `test-results/` folder, including screenshots and traces for any failing UI test, is attached to the run as an artifact.

@@ -1,0 +1,52 @@
+name: UI tests
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+  workflow_dispatch:
+
+concurrency:
+  group: ui-tests-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  ui-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run UI tests
+        run: docker compose -f docker-compose.test.yml up --build --abort-on-container-exit --exit-code-from ui-tests ui-tests
+
+      - name: App logs
+        if: failure()
+        run: docker compose -f docker-compose.test.yml logs app app-prod
+
+      - name: Stop stack
+        if: always()
+        run: docker compose -f docker-compose.test.yml down -v
+
+      - name: Test summary
+        if: always()
+        run: |
+          f=test-results/ui.trx
+          if [ ! -f "$f" ]; then echo "No results file" >> "$GITHUB_STEP_SUMMARY"; exit 0; fi
+          c=$(grep -o '<Counters [^>]*' "$f")
+          get() { echo "$c" | sed -E "s/.* $1=\"([0-9]+)\".*/\1/"; }
+          {
+            echo "### UI tests"
+            echo "| Total | Passed | Failed |"
+            echo "| --- | --- | --- |"
+            echo "| $(get total) | $(get passed) | $(get failed) |"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload results, screenshots and traces
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ui-test-results
+          path: test-results/
+          if-no-files-found: ignore

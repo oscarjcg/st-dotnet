@@ -1,0 +1,44 @@
+name: Unit tests
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+  workflow_dispatch:
+
+concurrency:
+  group: unit-tests-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  unit-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run unit tests
+        run: docker compose -f docker-compose.test.yml run --rm --build unit-tests
+
+      - name: Test summary
+        if: always()
+        run: |
+          f=test-results/unit.trx
+          if [ ! -f "$f" ]; then echo "No results file" >> "$GITHUB_STEP_SUMMARY"; exit 0; fi
+          c=$(grep -o '<Counters [^>]*' "$f")
+          get() { echo "$c" | sed -E "s/.* $1=\"([0-9]+)\".*/\1/"; }
+          {
+            echo "### Unit tests"
+            echo "| Total | Passed | Failed |"
+            echo "| --- | --- | --- |"
+            echo "| $(get total) | $(get passed) | $(get failed) |"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: unit-test-results
+          path: test-results/
+          if-no-files-found: ignore
